@@ -1,0 +1,24 @@
+# secrets
+.env
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# local working data (sample_data/ holds the exported copy that IS committed)
+data/
+snapshots/
+*.log
+
+# assignment brief (Edxso's document) and personal planning notes: not part of the published repo
+*.pdf
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+DEMO.md
