@@ -83,6 +83,10 @@ def process_page(conn, page: crawl.Page, source_type: str, snap_id: int, run_id:
         stats["errors"] += 1
         log.warning("      LLM busy, page skipped for this run: %s", str(e)[:120])
         return
+    except Exception as e:  # never let one page crash the run; it is retried next run
+        stats["errors"] += 1
+        log.exception("      unexpected error extracting %s: %s", page.url, str(e)[:120])
+        return
     db.mark_extracted(conn, page.url, page.content_hash)
     seen_ids = set()
     for s in newest_cycle_only(schemes, page.url):

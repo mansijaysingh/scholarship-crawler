@@ -8,6 +8,7 @@ import re
 import time
 from dataclasses import dataclass, field
 
+import httpx
 from google import genai
 from google.genai import errors, types
 
@@ -153,6 +154,10 @@ def call_llm(prompt: str) -> tuple[dict, str]:
             except json.JSONDecodeError as e:
                 last_err = e
                 break
+            except (httpx.TransportError, OSError) as e:  # connection dropped / DNS failure: wait, retry
+                last_err = e
+                log.warning("    network error calling %s: %s", model, str(e)[:100])
+                time.sleep(15 * (attempt + 1))
     if all(m in _dead_models for m in config.GEMINI_MODELS):
         raise LLMQuotaExhausted(f"no usable model left: {_dead_models}")
     raise LLMTemporaryError(f"models busy/failing ({str(last_err)[:150]}); dead: {list(_dead_models)}")

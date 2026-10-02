@@ -1,0 +1,4 @@
+id,scholarship_id,field,old_value,new_value,detected_at,source_url,evidence_quote,run_id,note
+6,135,open_date,2025-06-02,2026-07-14,2026-10-02T14:24:04+00:00,https://www.kotakeducationfoundation.org/kotak-kanya-scholarship,"OLD (https://web.archive.org/web/20250825165558id_/https://www.kotakeducationfoundation.org/kotak-kanya-scholarship): ""Pre-Registrations Start on 2nd June 2025"" | NEW (official page): ""Application Start Date: 14-07-2026""",4,baseline: web.archive.org snapshot dated 2025-08-25
+7,129,status,REVIEW_REQUIRED,NO_LONGER_VERIFIABLE,2026-10-02T15:26:08+00:00,https://dte.maharashtra.gov.in/merit-cum-means,,8,official page failed to load in 2 consecutive runs
+8,154,status,REVIEW_REQUIRED,ACTIVE,2026-10-02T15:26:08+00:00,https://www.icmr.gov.in/icmrobject/uploads/Call/1790596857_calln_rdhr.pdf,,8,"verified, open until 2026-11-30"
