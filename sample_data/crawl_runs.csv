@@ -7,3 +7,4 @@ run_id,started_at,finished_at,pages_crawled,new,updated,unchanged,stale,errors,n
 6,2026-10-02T14:33:49+00:00,2026-10-02T14:36:17+00:00,2,0,0,0,0,0,"archive baseline: {'pages': 2, 'changes': 0, 'no_archive': 8}"
 7,2026-10-02T14:42:26+00:00,2026-10-02T15:11:18+00:00,0,0,0,0,0,0,interrupted: internet connection dropped during extraction (records saved up to that point)
 8,2026-10-02T15:11:29+00:00,2026-10-02T15:26:07+00:00,0,0,0,0,0,0,stopped by user after re-check and partial discovery; records verified at stop
+9,2026-10-02T15:28:26+00:00,2026-10-02T15:41:48+00:00,97,0,0,178,29,0,deferred=0 verified=6 transitions=0
