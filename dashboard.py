@@ -26,10 +26,23 @@ FIELD_LABELS = {
 
 st.set_page_config(page_title="Scholarship Intelligence", page_icon="🎓", layout="wide")
 
+# full-width tables: `width="stretch"` on newer Streamlit, `use_container_width` on older releases
+_ST_VERSION = tuple(int(x) for x in st.__version__.split(".")[:2])
+STRETCH = {"width": "stretch"} if _ST_VERSION >= (1, 50) else {"use_container_width": True}
+
 
 def db_path():
+    """Local crawler output if it has records; otherwise the committed sample_data copy
+    (a fresh clone may have an empty data/ DB created by `main.py status`)."""
     if config.DB_PATH.exists():
-        return config.DB_PATH
+        try:
+            conn = sqlite3.connect(f"file:{config.DB_PATH}?mode=ro", uri=True)
+            n = conn.execute("SELECT COUNT(*) FROM scholarships").fetchone()[0]
+            conn.close()
+            if n:
+                return config.DB_PATH
+        except sqlite3.Error:
+            pass
     return config.BASE_DIR / "sample_data" / "scholarships.db"
 
 
@@ -115,7 +128,7 @@ with tab_list:
     })
     st.caption(f"{len(table)} of {len(sch)} records · click a row to open its details")
     event = st.dataframe(
-        table, hide_index=True, use_container_width=True, height=380,
+        table, hide_index=True, **STRETCH, height=380,
         on_select="rerun", selection_mode="single-row",
         column_config={
             "Confidence": st.column_config.ProgressColumn("Confidence", min_value=0, max_value=100, format="%.1f%%"),
@@ -166,7 +179,7 @@ with tab_list:
         if not checks.empty:
             checks = checks.rename(columns={"check": "Check", "points": "Points", "max": "Max", "reason": "Evidence / reason"})
             st.dataframe(checks[["Check", "Points", "Max", "Evidence / reason"]], hide_index=True,
-                         use_container_width=True)
+                         **STRETCH)
             st.caption(f"Sum of checks = {r['confidence']:.1f}% (capped 0–100). Every check is computed in code "
                        f"from stored evidence; no model generates or adjusts the number.")
 
@@ -186,14 +199,14 @@ with tab_list:
                 "Snapshot": ev["snapshot_id"].apply(lambda x: f"#{int(x)}" if pd.notna(x) else ""),
                 "Grounding": ev["reason"].fillna(""),
             })
-            st.dataframe(show, hide_index=True, use_container_width=True,
+            st.dataframe(show, hide_index=True, **STRETCH,
                          column_config={"Source page": st.column_config.LinkColumn("Source page")})
             rejected = ev[(ev["grounded"] == 0) & ev["raw_value"].notna()]
             if not rejected.empty:
                 with st.expander(f"Values the extractor proposed but grounding rejected ({len(rejected)})"):
                     st.dataframe(pd.DataFrame({"Field": rejected["field"], "Proposed": rejected["raw_value"],
                                                "Why rejected": rejected["reason"]}),
-                                 hide_index=True, use_container_width=True)
+                                 hide_index=True, **STRETCH)
 
         st.markdown("#### Change history")
         ch = q("""SELECT detected_at, field, old_value, new_value, note, source_url, evidence_quote, run_id
@@ -202,7 +215,7 @@ with tab_list:
             st.caption("No changes detected for this scholarship.")
         else:
             ch["detected_at"] = ch["detected_at"].map(fmt_date)
-            st.dataframe(ch, hide_index=True, use_container_width=True)
+            st.dataframe(ch, hide_index=True, **STRETCH)
 
 # ---------------------------------------------------------------- change log
 with tab_changes:
@@ -216,7 +229,7 @@ with tab_changes:
         st.info("No changes detected yet.")
     else:
         allch["detected_at"] = allch["detected_at"].map(fmt_date)
-        st.dataframe(allch, hide_index=True, use_container_width=True,
+        st.dataframe(allch, hide_index=True, **STRETCH,
                      column_config={"source_url": st.column_config.LinkColumn("source_url")})
     st.subheader("Stale / expired records")
     stale = sch[sch["status"].isin(["EXPIRED", "NO_LONGER_VERIFIABLE"])]
@@ -224,18 +237,18 @@ with tab_changes:
                                "Closing date": stale["close_date"].map(fmt_date),
                                "Source HTTP status": stale["http_status"], "Missing runs": stale["missing_runs"],
                                "Official source": stale["official_url"]}),
-                 hide_index=True, use_container_width=True,
+                 hide_index=True, **STRETCH,
                  column_config={"Official source": st.column_config.LinkColumn("Official source")})
 
 # ---------------------------------------------------------------- runs
 with tab_runs:
     st.subheader("Crawl runs")
     st.caption("Each run re-checks known official pages, discovers new ones, extracts, verifies and updates statuses.")
-    st.dataframe(runs, hide_index=True, use_container_width=True)
+    st.dataframe(runs, hide_index=True, **STRETCH)
     src = q("""SELECT source_type, COUNT(*) AS urls, SUM(is_relevant) AS relevant, SUM(is_official) AS official
                FROM sources GROUP BY source_type ORDER BY urls DESC""")
     st.subheader("Sources seen by the crawler")
-    st.dataframe(src, hide_index=True, use_container_width=True)
+    st.dataframe(src, hide_index=True, **STRETCH)
 
 # ---------------------------------------------------------------- methodology
 with tab_method:
