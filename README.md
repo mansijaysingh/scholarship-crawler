@@ -6,6 +6,8 @@ everything in SQLite, re-runs to detect **changes** and **stale/expired** record
 
 Built for the Edxso AI Engineer Intern assignment 2 (Atlas Funding). Method details: [TECHNICAL_NOTE.md](TECHNICAL_NOTE.md).
 
+**Live dashboard:** https://scholarship-crawler-mzwcfnrgpqpsmjbc4bbv2e.streamlit.app/ (reads the committed `sample_data/scholarships.db`)
+
 > **Principle:** accuracy over quantity. If the official page does not say it, the database says *Not specified*.
 
 ## Results
